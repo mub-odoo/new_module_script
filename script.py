@@ -1,27 +1,29 @@
+# -*- coding: utf-8 -*
+# Part of 4Minds. See LICENSE file for full copyright and licensing details.
+
 import os
+import content
 
-def create_module_structure(module_name, module_version):
+
+def create_module_structure(module_name, module_version, file_contents):
     module_dir = module_name.lower().replace(' ', '_')
-
-    init_content = '''# -*- coding: utf-8 -*
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
-
-# from . import 
-'''
     
     # Create module directory
     os.makedirs(module_dir)
 
     # Create __init__.py file
     with open(os.path.join(module_dir, '__init__.py'), 'w') as main_init:
-        main_init.write(init_content)
-        # pass
+        main_init.write(file_contents.get('init_content'))
+
+    # Create .gitignore file
+    with open(os.path.join(module_dir, '.gitignore'), 'w') as GitIgnore:
+        GitIgnore.write(file_contents.get('gitignore_content'))
 
     # Create models directory
     models_dir = os.path.join(module_dir, 'models')
     os.makedirs(models_dir)
     with open(os.path.join(models_dir, '__init__.py'), 'w') as init_file:
-        init_file.write(init_content)
+        init_file.write(file_contents.get('init_content'))
         # pass
 
     # Create views directory
@@ -45,40 +47,20 @@ def create_module_structure(module_name, module_version):
     os.makedirs(static_dir)
 
     # Create manifest file
-    manifest_content = '''# -*- coding: utf-8 -*
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
-{
-    "name": "%s",
-    "version": "%s",
-    "summary": "module_summary",
-    "description": """
-       TASK ID - 
-    """,
-    "category": 'Customization',
+    manifest_content = file_contents.get('manifest_content') % (module_name, module_version)
 
-    # Author
-    "author": "Odoo PS",
-    "website": "https://www.odoo.com",
-    "license": "LGPL-3",
-    
-    # Dependency
-    "depends": [],
-    
-    "data": [
-        # "security/ir.model.access.csv",
-        # "views/view_file.xml",
-    ],
-
-    "installable": True,
-    "application": False,
-    "auto_install": False
-}
-''' % (module_name, module_version)
     with open(os.path.join(module_dir, '__manifest__.py'), 'w') as manifest_file:
         manifest_file.write(manifest_content)
 
 if __name__ == '__main__':
     module_name = input('Enter the Module Technical Name: ')
     module_version = input('Enter the Module Version: ')
-    create_module_structure(module_name, module_version)
-    print('Module structure created successfully.')
+
+    file_contents = {
+        'init_content': content.init_content,
+        'manifest_content': content.manifest_content,
+        'gitignore_content': content.gitignore_content,
+    }
+
+    create_module_structure(module_name, module_version, file_contents)
+    print('\nModule structure created successfully.')
